@@ -41,7 +41,7 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    **📜 Fetch Pokémon using multiple threads (faster)**
 
    ```bash
-   python pokemon-fetcher.py --limit 300 --threads 20
+   python pokemon-fetcher.py --limit 300 --threads 40
    ```
 
    **📜 Example Output**
