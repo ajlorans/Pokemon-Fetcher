@@ -35,13 +35,13 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    **📜 Fetch all Pokémon (default 150)**
 
    ```bash
-   python pokemon_fetcher.py
+   python pokemon-fetcher.py
    ```
 
    **📜 Fetch Pokémon using multiple threads (faster)**
 
    ```bash
-   python pokemon_fetcher.py --limit 300 --threads 20
+   python pokemon-fetcher.py --limit 300 --threads 20
    ```
 
    **📜 Example Output**
@@ -62,11 +62,11 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    **📜 Fetch a specific Pokémon (by name or ID)**
 
    ```bash
-   python pokemon_fetcher.py --pokemon blastoise
+   python pokemon-fetcher.py --pokemon blastoise
    ```
 
    ```bash
-   python pokemon_fetcher.py --pokemon 9 # Blastoise's ID
+   python pokemon-fetcher.py --pokemon 9 # Blastoise's ID
    ```
 
    **📜 Example Output**
