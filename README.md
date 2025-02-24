@@ -86,3 +86,9 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
      ➔ Special Defense: 105
      ➔ Speed: 78
    ```
+
+   **📜 Show help options**
+
+   ```bash
+   python pokemon-fetcher.py --h
+   ```
