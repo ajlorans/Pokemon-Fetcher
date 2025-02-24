@@ -12,6 +12,7 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
 ## 🔧 Requirements
 
 - Python 3.x
+- `colorama` library
 - `requests` library (install with `pip install -r requirements.txt`)
 
 ## 🚀 Installation & Usage
