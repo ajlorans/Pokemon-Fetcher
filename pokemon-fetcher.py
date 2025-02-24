@@ -1,170 +1,157 @@
 import requests
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from colorama import init, Fore, Style
 
+init(autoreset=True)
+
+# Type icons for each type
+TYPE_ICONS = {
+    "fire": "🔥",
+    "water": "🌊",
+    "grass": "🍃",
+    "electric": "⚡",
+    "bug": "🐞",
+    "normal": "⚪",
+    "psychic": "🧠",
+    "fighting": "🥊",
+    "poison": "☠️",
+    "ghost": "👻",
+    "dark": "🌑",
+    "dragon": "🐉",
+    "fairy": "🧚",
+    "steel": "⚙️",
+    "ice": "❄️",
+    "rock": "🪨",
+    "ground": "🌍",
+    "flying": "🕊️",
+}
+
+# Fetch Pokémon list
 def fetch_pokemon_list(limit=150):
-    """
-    Fetch a list of Pokémon from the PokéAPI.
-
-    Args:
-        limit (int): Number of Pokémon to fetch from the API.
-
-    Returns:
-        list: A list of dictionaries, each containing a Pokémon's name and details URL.
-    """
     url = f"https://pokeapi.co/api/v2/pokemon/?limit={limit}"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    
-    print(f"Requesting Pokémon list from: {url}")  # Debug print
-    
     try:
-        response = requests.get(url, headers=headers, timeout=10)  # Set a timeout to prevent hanging
-        response.raise_for_status()  # Raise an error for HTTP response codes 4xx/5xx
-        data = response.json()
-        return data.get('results', [])
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.json().get('results', [])
     except requests.RequestException as e:
-        print(f"Error fetching Pokémon list: {e}")
+        print(f"❌ Error fetching Pokémon list: {e}")
         return []
 
+# Fetch Pokémon details
 def fetch_pokemon_details(url):
-    """
-    Fetch detailed data for a given Pokémon.
-
-    Args:
-        url (str): The API URL for the Pokémon details.
-
-    Returns:
-        dict: A dictionary containing Pokémon details or None if an error occurs.
-    """
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    
     try:
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        print(f"Error fetching details from {url}: {e}")
+        print(f"❌ Error fetching details from {url}: {e}")
         return None
 
-def fetch_pokemon(pokemon_name_or_id):
-    """
-    Fetch detailed information about a specific Pokémon using its name or ID.
-    """
-    url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name_or_id}/"
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()  # Returns Pokémon details as JSON
-    except requests.RequestException as e:
-        print(f"Error: Pokémon '{pokemon_name_or_id}' not found. {e}")
-        return None
-
+# Categorize Pokémon
 def categorize_pokemon(pokemon_details_list):
-    """
-    Categorize Pokémon based on their types.
-
-    Args:
-        pokemon_details_list (list): A list of Pokémon detail dictionaries.
-
-    Returns:
-        dict: A dictionary where keys are type names and values are lists of Pokémon details.
-    """
     categories = {}
-
     for details in pokemon_details_list:
-        if details is None:
-            continue
-        
-        types = [t["type"]["name"] for t in details.get("types", [])]
-
-        for t in types:
-            if t not in categories:
-                categories[t] = []
-            categories[t].append(details)
-
+        if details:
+            name = details.get("name", "Unknown").capitalize()
+            types = [t["type"]["name"].lower() for t in details.get("types", [])]
+            abilities = [a["ability"]["name"].capitalize() for a in details.get("abilities", [])]
+            base_exp = details.get("base_experience", "N/A")
+            id = details.get("id", "N/A")
+            pokemon_info = {'id': id, 'name': name, 'abilities': abilities, 'base_experience': base_exp}
+            for t in types:
+                categories.setdefault(t, []).append(pokemon_info)
     return categories
 
+# Display Pokémon details
 def display_pokemon_details(details):
     """
     Display the details of a single Pokémon.
-
-    Args:
-        details (dict): Pokémon detail dictionary.
     """
     if not details:
         print("No Pokémon details available.")
         return
     
     name = details.get("name", "N/A").capitalize()
-    types = ", ".join([t["type"]["name"].capitalize() for t in details.get("types", [])])
+    pokemon_id = details.get("id", "N/A")
+    types = [t["type"]["name"].capitalize() for t in details.get("types", [])]
+    sprite = details.get("sprites", {}).get("front_default", "No sprite available")
+
     abilities = ", ".join([a["ability"]["name"].capitalize() for a in details.get("abilities", [])])
     base_exp = details.get("base_experience", "N/A")
     height = details.get("height", "N/A")
     weight = details.get("weight", "N/A")
 
-    print(f"🔹 Name: {name}")
-    print(f"🔹 Types: {types}")
-    print(f"🔹 Abilities: {abilities}")
-    print(f"🔹 Base Experience: {base_exp}, Height: {height}, Weight: {weight}")
-    print()
+    # Get base stats
+    stats = details.get("stats", [])
+    base_stats = {
+        "HP": next((stat["base_stat"] for stat in stats if stat["stat"]["name"] == "hp"), "N/A"),
+        "Attack": next((stat["base_stat"] for stat in stats if stat["stat"]["name"] == "attack"), "N/A"),
+        "Defense": next((stat["base_stat"] for stat in stats if stat["stat"]["name"] == "defense"), "N/A"),
+        "Special Attack": next((stat["base_stat"] for stat in stats if stat["stat"]["name"] == "special-attack"), "N/A"),
+        "Special Defense": next((stat["base_stat"] for stat in stats if stat["stat"]["name"] == "special-defense"), "N/A"),
+        "Speed": next((stat["base_stat"] for stat in stats if stat["stat"]["name"] == "speed"), "N/A"),
+    }
 
-def display_results(categories):
-    """
-    Display the categorized Pokémon along with relevant details.
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}Name: {Fore.WHITE}{name}")
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}ID: {Fore.WHITE}{pokemon_id}")
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}Types: {Fore.WHITE}{', '.join(types) if types else 'N/A'}")
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}Abilities: {Fore.WHITE}{abilities}")
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}Base Experience: {Fore.WHITE}{base_exp}, {Fore.YELLOW}Height: {Fore.WHITE}{height}, {Fore.YELLOW}Weight: {Fore.WHITE}{weight}")
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}Sprite: {Fore.WHITE}{sprite}")
+    
+    # Display base stats
+    print(f"{Fore.YELLOW}🔹 {Fore.RED}{Style.BRIGHT}Base Stats: ")
+    for stat, value in base_stats.items():
+        print(f"  {Fore.YELLOW}➔ {Fore.RED}{Style.BRIGHT}{stat}: {Fore.WHITE}{value}")
+    
+    print(Style.RESET_ALL)
 
-    Args:
-        categories (dict): A dictionary containing Pokémon data grouped by type.
-    """
-    for type_name, pokemons in categories.items():
-        print(f"🔹 Type: {type_name.capitalize()}")
-        for details in pokemons:
-            display_pokemon_details(details)
 
+# Display categorized Pokémon
+def display_categorized_pokemon(categories):
+    print("\n📂 Pokémon Categorized by Type:")
+    for type_name, pokemons in sorted(categories.items()):
+        type_icon = TYPE_ICONS.get(type_name, type_name.capitalize())
+        print(f"\n{type_icon} {Fore.GREEN}{Style.BRIGHT} Type: {Fore.CYAN}{type_name.capitalize()}")
+        for pokemon in pokemons:
+            abilities = ", ".join(pokemon['abilities'])
+            base_exp = pokemon['base_experience']
+            print(f"{Fore.YELLOW}➔ {Fore.WHITE}{Style.BRIGHT} {pokemon['name']} {Fore.WHITE}({Fore.GREEN}ID: {Fore.CYAN}{pokemon['id']}{Fore.WHITE} | {Fore.GREEN}Abilities: {Fore.MAGENTA}{abilities}{Fore.WHITE} | {Fore.YELLOW}Base Exp: {Fore.RED}{base_exp}{Fore.WHITE})")
+
+# Parse command-line arguments
 def parse_args():
-    """
-    Parse command-line arguments to customize the script execution.
-
-    Returns:
-        argparse.Namespace: The parsed arguments.
-    """
     parser = argparse.ArgumentParser(description="Fetch and categorize Pokémon using the PokéAPI.")
     parser.add_argument('--pokemon', type=str, help="Fetch details of a specific Pokémon by name or ID")
     parser.add_argument('--limit', type=int, default=150, help="Number of Pokémon to fetch (default: 150)")
     parser.add_argument('--threads', type=int, default=10, help="Number of threads to use for concurrent fetching (default: 10)")
     return parser.parse_args()
 
+# Main function
 def main():
-    """
-    Main function to orchestrate fetching, processing, and displaying Pokémon data.
-    """
     args = parse_args()
 
     if args.pokemon:
-        # Fetch a single Pokémon if the user specifies one
-        details = fetch_pokemon(args.pokemon)
+        details = fetch_pokemon_details(f"https://pokeapi.co/api/v2/pokemon/{args.pokemon}")
         display_pokemon_details(details)
         return
 
-    # Step 1: Fetch a list of Pokémon with the specified limit
-    pokemon_list = fetch_pokemon_list(limit=args.limit)
+    pokemon_list = fetch_pokemon_list(args.limit)
+    
+    if not pokemon_list:
+        print("❌ No Pokémon fetched.")
+        return
 
-    # Step 2: Retrieve Pokémon details concurrently using ThreadPoolExecutor
+    print(f"✅ Successfully fetched {len(pokemon_list)} Pokémon.")
+
     pokemon_details_list = []
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
-        future_to_pokemon = {executor.submit(fetch_pokemon_details, pokemon["url"]): pokemon for pokemon in pokemon_list}
-        
+        future_to_pokemon = {executor.submit(fetch_pokemon_details, p["url"]): p for p in pokemon_list}
         for future in as_completed(future_to_pokemon):
-            data = future.result()
-            if data:
-                pokemon_details_list.append(data)
+            pokemon_details_list.append(future.result())
 
-    # Step 3: Categorize Pokémon by type
-    categorized_pokemon = categorize_pokemon(pokemon_details_list)
-
-    # Step 4: Display the categorized results
-    display_results(categorized_pokemon)
+    categories = categorize_pokemon(pokemon_details_list)
+    display_categorized_pokemon(categories)
 
 if __name__ == "__main__":
     main()

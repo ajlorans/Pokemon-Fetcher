@@ -35,8 +35,9 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    **📜 Fetch all Pokémon (default 150)**
 
    ```bash
-   python pokemon_fetcher.py --limit 150
+   python pokemon_fetcher.py
    ```
+
    **📜 Fetch Pokémon using multiple threads (faster)**
 
    ```bash
@@ -77,7 +78,7 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    🔹 Abilities: Torrent, Rain-dish
    🔹 Base Experience: 265, Height: 16, Weight: 855
    🔹 Sprite: https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png
-   🔹 Base Stats: 
+   🔹 Base Stats:
      ➔ HP: 79
      ➔ Attack: 83
      ➔ Defense: 100
