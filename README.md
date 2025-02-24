@@ -4,7 +4,7 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
 
 ## 📌 Features
 
-- Fetch a list of Pokémon with details like type, abilities, height, and weight
+- Fetch a list of Pokémon with details like type, abilities, sprite, base stats, and other
 - Retrieve details of a **specific Pokémon** by name or ID
 - Categorize Pokémon by type
 - Fetch data efficiently with multithreading
