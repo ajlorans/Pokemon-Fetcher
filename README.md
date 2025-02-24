@@ -44,10 +44,10 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    python pokemon-fetcher.py --limit 300 --threads 40
    ```
 
-   **📜 Example Output**
+   **✅ Example Output**
 
-   ```yaml
-   ✅ Successfully fetched 10 Pokémon.
+   ```
+   ✅ Successfully fetched 150 Pokémon.
 
    📂 Pokémon Categorized by Type:
 
@@ -69,9 +69,9 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    python pokemon-fetcher.py --pokemon 9 # Blastoise's ID
    ```
 
-   **📜 Example Output**
+   **✅ Example Output**
 
-   ```yaml
+   ```
    🔹 Name: Blastoise
    🔹 ID: 9
    🔹 Types: Water
