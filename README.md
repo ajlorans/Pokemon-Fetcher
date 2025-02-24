@@ -62,7 +62,7 @@ A Python script to fetch Pokémon data from the PokéAPI, including types, abili
    **📜 Fetch a specific Pokémon (by name or ID)**
 
    ```bash
-   python pokemon_fetcher.py --pokemon charizard
+   python pokemon_fetcher.py --pokemon blastoise
    ```
 
    ```bash
